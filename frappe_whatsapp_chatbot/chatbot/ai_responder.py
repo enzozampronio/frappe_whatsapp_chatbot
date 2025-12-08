@@ -60,7 +60,10 @@ class AIResponder:
     def query_doctype(self, ctx):
         """Query DocType for context."""
         try:
-            filters = json.loads(ctx.filters or "{}") if ctx.filters else {}
+            # Handle filters that might already be parsed
+            filters = ctx.filters or {}
+            if isinstance(filters, str):
+                filters = json.loads(filters) if filters else {}
             fields = ["name"]
 
             if ctx.fields_to_include:

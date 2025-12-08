@@ -4,6 +4,20 @@ import re
 from datetime import datetime
 
 
+def parse_json(value, default=None):
+    """Safely parse JSON - handles both string and already-parsed dict/list."""
+    if value is None:
+        return default if default is not None else {}
+    if isinstance(value, (dict, list)):
+        return value
+    if isinstance(value, str):
+        try:
+            return json.loads(value)
+        except (json.JSONDecodeError, TypeError):
+            return default if default is not None else {}
+    return default if default is not None else {}
+
+
 class FlowEngine:
     """Execute conversation flows."""
 
@@ -147,7 +161,7 @@ class FlowEngine:
 
                 # Store input
                 if current_step.store_as:
-                    session_data = json.loads(session.session_data or "{}")
+                    session_data = parse_json(session.session_data, {})
                     session_data[current_step.store_as] = input_value
                     session.session_data = json.dumps(session_data)
 
@@ -174,7 +188,7 @@ class FlowEngine:
                 return self.complete_flow(session, flow)
 
             # Check skip condition for next step
-            session_data = json.loads(session.session_data or "{}")
+            session_data = parse_json(session.session_data, {})
             if next_step.skip_condition:
                 if self.evaluate_skip_condition(next_step.skip_condition, session_data):
                     # Skip this step, find the one after
@@ -272,16 +286,14 @@ class FlowEngine:
         """Determine the next step based on input."""
         # Check conditional next
         if current_step.conditional_next:
-            try:
-                conditions = json.loads(current_step.conditional_next)
+            conditions = parse_json(current_step.conditional_next, {})
+            if conditions:
                 response_key = button_payload or (user_input.lower() if user_input else "")
 
                 if response_key in conditions:
                     return conditions[response_key]
                 if "default" in conditions:
                     return conditions["default"]
-            except json.JSONDecodeError:
-                pass
 
         # Use explicit next step
         if current_step.next_step:
@@ -305,7 +317,7 @@ class FlowEngine:
         message = step.message or ""
 
         # Substitute session variables
-        session_data = json.loads(session.session_data or "{}")
+        session_data = parse_json(session.session_data, {})
         for key, value in session_data.items():
             message = message.replace(f"{{{key}}}", str(value))
 
@@ -318,16 +330,16 @@ class FlowEngine:
 
         # Add buttons if defined
         if step.input_type == "Button" and step.buttons:
-            try:
-                buttons = json.loads(step.buttons)
+            buttons = parse_json(step.buttons, [])
+            if buttons:
                 # Format for WhatsApp interactive message
                 return {
                     "message": message,
                     "content_type": "interactive",
                     "interactive_type": "button",
-                    "buttons": json.dumps(buttons)
+                    "buttons": json.dumps(buttons) if isinstance(buttons, list) else buttons
                 }
-            except json.JSONDecodeError:
+            else:
                 pass
 
         # Add options hint for Select type
@@ -360,7 +372,7 @@ class FlowEngine:
             session.save(ignore_permissions=True)
 
             # Get session data
-            session_data = json.loads(session.session_data or "{}")
+            session_data = parse_json(session.session_data, {})
 
             # Execute completion action
             if flow.on_complete_action == "Create Document":
@@ -389,7 +401,9 @@ class FlowEngine:
             if not flow.create_doctype or not flow.field_mapping:
                 return
 
-            mapping = json.loads(flow.field_mapping)
+            # field_mapping might already be a dict (Frappe JSON field) or a string
+            mapping = parse_json(flow.field_mapping, {})
+
             doc_data = {"doctype": flow.create_doctype}
 
             for field, variable in mapping.items():

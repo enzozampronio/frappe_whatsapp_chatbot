@@ -295,7 +295,41 @@ class ChatbotProcessor:
                 "message": keyword_doc.media_caption or ""
             }
 
+        elif keyword_doc.response_type == "Script":
+            return self.execute_script(keyword_doc.script)
+
         return None
+
+    def execute_script(self, script):
+        """Execute a Server Script or method path.
+
+        Args:
+            script: Server Script name or dotted method path
+
+        Returns:
+            Response from the script/method
+        """
+        if not script:
+            return None
+
+        try:
+            # Get the WhatsApp Message document
+            message_doc = frappe.get_doc("WhatsApp Message", self.message_name)
+
+            # Check if it's a Server Script (API type)
+            if frappe.db.exists("Server Script", {"name": script, "script_type": "API"}):
+                server_script = frappe.get_doc("Server Script", script)
+                return frappe.call(server_script.api_method, doc=message_doc)
+            else:
+                # Treat as method path
+                return frappe.call(script, doc=message_doc)
+
+        except Exception as e:
+            frappe.log_error(
+                f"Script execution error for '{script}': {str(e)}",
+                "WhatsApp Chatbot Script Error"
+            )
+            return None
 
     def is_business_hours(self):
         """Check if current time is within business hours."""

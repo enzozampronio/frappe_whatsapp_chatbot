@@ -42,7 +42,7 @@ Keyword replies allow you to configure automatic responses based on message cont
 
 | Field | Description |
 |-------|-------------|
-| **Response Type** | Text, Template, Media, or Flow |
+| **Response Type** | Text, Template, Media, Flow, or Script |
 
 #### Response Type: Text
 
@@ -78,6 +78,52 @@ Trigger a conversation flow.
 | Field | Description |
 |-------|-------------|
 | **Trigger Flow** | Link to WhatsApp Chatbot Flow |
+
+#### Response Type: Script
+
+Execute a Server Script or Python method. The script receives the WhatsApp Message document and can return a response.
+
+| Field | Description |
+|-------|-------------|
+| **Script** | Server Script name (API type) or method path (e.g., `myapp.api.handle_message`) |
+
+The script/method receives the WhatsApp Message document as `doc`:
+
+```python
+# Example method in myapp/api.py
+def escalate_to_agent(doc):
+    """
+    doc is the WhatsApp Message document with fields:
+    - doc.from_ or doc.get("from"): sender's phone number
+    - doc.message: message text
+    - doc.whatsapp_account: WhatsApp account used
+    - doc.name: message ID
+    """
+    phone = doc.get("from") or doc.from_
+
+    # Your custom logic here
+    frappe.get_doc({
+        "doctype": "Support Ticket",
+        "phone": phone,
+        "subject": f"WhatsApp escalation from {phone}"
+    }).insert()
+
+    # Return response text or dict
+    return "You've been connected to our support team. An agent will respond shortly."
+```
+
+**Using Server Script (API type):**
+
+1. Create a Server Script with Script Type = "API"
+2. Set the API Method name (e.g., `handle_whatsapp`)
+3. In the script, access the message via `frappe.form_dict.doc`
+
+```python
+# Server Script
+doc = frappe.form_dict.doc
+phone = doc.get("from") or doc.get("from_")
+frappe.response["message"] = f"Hello {phone}, how can I help?"
+```
 
 ### Advanced Settings
 
@@ -136,4 +182,14 @@ Response Type: Text
 Response Text: 🎉 Holiday Sale! Get 20% off with code HOLIDAY20
 Active From: 2024-12-20 00:00
 Active Until: 2024-12-31 23:59
+```
+
+### Agent Escalation (Script)
+
+```
+Title: Escalate to Agent
+Keywords: agent, human, help, support
+Match Type: Contains
+Response Type: Script
+Script: myapp.api.escalate_to_agent
 ```

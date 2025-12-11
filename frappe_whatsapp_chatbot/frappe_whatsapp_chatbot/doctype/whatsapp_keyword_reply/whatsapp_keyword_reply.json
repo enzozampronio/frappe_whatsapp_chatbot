@@ -27,6 +27,8 @@
         "media_caption",
         "section_break_flow",
         "trigger_flow",
+        "section_break_script",
+        "script",
         "section_break_conditions",
         "conditions",
         "active_from",
@@ -105,7 +107,7 @@
             "fieldtype": "Select",
             "in_list_view": 1,
             "label": "Response Type",
-            "options": "Text\nTemplate\nMedia\nFlow",
+            "options": "Text\nTemplate\nMedia\nFlow\nScript",
             "reqd": 1
         },
         {
@@ -177,6 +179,21 @@
             "options": "WhatsApp Chatbot Flow",
             "depends_on": "eval:doc.response_type=='Flow'",
             "mandatory_depends_on": "eval:doc.response_type=='Flow'"
+        },
+        {
+            "fieldname": "section_break_script",
+            "fieldtype": "Section Break",
+            "label": "Script Configuration",
+            "depends_on": "eval:doc.response_type=='Script'",
+            "collapsible": 1
+        },
+        {
+            "fieldname": "script",
+            "fieldtype": "Data",
+            "label": "Script",
+            "depends_on": "eval:doc.response_type=='Script'",
+            "mandatory_depends_on": "eval:doc.response_type=='Script'",
+            "description": "Server Script name (API type) or method path (e.g., myapp.api.escalate_to_agent)"
         },
         {
             "fieldname": "section_break_conditions",

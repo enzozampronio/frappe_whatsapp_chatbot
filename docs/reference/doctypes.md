@@ -44,7 +44,7 @@ Keyword-to-response mappings.
 | keywords | Small Text | Comma-separated keywords |
 | match_type | Select | Exact/Contains/Starts With/Regex |
 | case_sensitive | Check | Case sensitivity |
-| response_type | Select | Text/Template/Media/Flow |
+| response_type | Select | Text/Template/Media/Flow/Script |
 | response_text | Text | Text response |
 | response_template | Link | WhatsApp Template |
 | template_parameters | JSON | Template params |
@@ -52,6 +52,7 @@ Keyword-to-response mappings.
 | media_url | Data | Media URL |
 | media_caption | Small Text | Media caption |
 | trigger_flow | Link | Flow to trigger |
+| script | Data | Server Script name or method path |
 | conditions | Code | Python conditions |
 | active_from | Datetime | Active start |
 | active_until | Datetime | Active end |

@@ -319,7 +319,29 @@ class ChatbotProcessor:
             # Check if it's a Server Script (API type)
             if frappe.db.exists("Server Script", {"name": script, "script_type": "API"}):
                 server_script = frappe.get_doc("Server Script", script)
-                return frappe.call(server_script.api_method, doc=message_doc)
+                # Use Frappe's safe_exec to execute the Server Script
+                # Provide context variables that the script can use
+                from frappe.utils.safe_exec import safe_exec
+                _locals = {
+                    "doc": message_doc,
+                    "phone_number": self.phone_number,
+                    "message": self.message_text,
+                    "account": self.account,
+                    "response": None  # Script can set this directly
+                }
+                safe_exec(
+                    server_script.script,
+                    _locals=_locals,
+                    script_filename=server_script.name
+                )
+                # Check for response in multiple places:
+                # 1. _locals["response"] - direct variable assignment
+                # 2. frappe.response["message"] - standard Frappe API script pattern
+                if _locals.get("response"):
+                    return _locals.get("response")
+                elif frappe.response.get("message"):
+                    return frappe.response.get("message")
+                return None
             else:
                 # Treat as method path
                 return frappe.call(script, doc=message_doc)

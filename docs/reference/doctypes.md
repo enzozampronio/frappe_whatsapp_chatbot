@@ -13,16 +13,17 @@ Global chatbot configuration.
 | process_all_accounts | Check | Process all accounts |
 | default_response | Small Text | Fallback message |
 | business_hours_only | Check | Restrict to business hours |
-| business_start_time | Time | Start time |
-| business_end_time | Time | End time |
+| business_hours | Table | Day-wise business hours schedule |
 | out_of_hours_message | Small Text | Out of hours message |
 | enable_ai | Check | Enable AI responses |
-| ai_provider | Select | OpenAI/Anthropic/Custom |
+| ai_provider | Select | OpenAI/Anthropic/Google/Custom |
 | ai_api_key | Password | API key |
 | ai_model | Data | Model name |
 | ai_max_tokens | Int | Max response tokens |
 | ai_temperature | Float | Temperature (0-1) |
 | ai_system_prompt | Text | System prompt |
+| ai_include_history | Check | Include conversation history |
+| ai_history_limit | Int | Number of history messages |
 | session_timeout_minutes | Int | Session timeout |
 | log_conversations | Check | Enable logging |
 | excluded_numbers | Table | Excluded phone numbers |
@@ -163,6 +164,34 @@ Phone numbers to exclude.
 | Field | Type | Description |
 |-------|------|-------------|
 | phone_number | Data | Phone number |
+| reason | Data | Exclusion reason |
+
+---
+
+## WhatsApp Business Hours
+
+**Type:** Child Table (for Settings)
+
+Day-wise business hours configuration.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| day | Select | Day of week (Monday-Sunday) |
+| enabled | Check | Whether business is open on this day |
+| start_time | Time | Opening time |
+| end_time | Time | Closing time |
+
+### Example
+
+| Day | Open | Start | End |
+|-----|------|-------|-----|
+| Monday | ✓ | 09:00 | 18:00 |
+| Tuesday | ✓ | 09:00 | 18:00 |
+| Wednesday | ✓ | 09:00 | 18:00 |
+| Thursday | ✓ | 09:00 | 18:00 |
+| Friday | ✓ | 09:00 | 17:00 |
+| Saturday | ✓ | 10:00 | 14:00 |
+| Sunday | ✗ | - | - |
 
 ---
 

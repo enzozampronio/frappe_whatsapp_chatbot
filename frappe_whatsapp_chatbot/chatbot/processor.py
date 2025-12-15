@@ -369,31 +369,56 @@ class ChatbotProcessor:
             return None
 
     def is_business_hours(self):
-        """Check if current time is within business hours."""
+        """Check if current time is within business hours for today."""
         try:
             settings = self.get_chatbot_settings()
             if not settings:
                 return True
 
-            now = datetime.now().time()
-            start = settings.business_start_time
-            end = settings.business_end_time
+            if not settings.business_hours:
+                return True  # No business hours configured
 
-            if start and end:
-                # Convert to time objects if they're strings
-                if isinstance(start, str):
-                    from datetime import time
-                    parts = start.split(":")
-                    start = time(int(parts[0]), int(parts[1]))
-                if isinstance(end, str):
-                    from datetime import time
-                    parts = end.split(":")
-                    end = time(int(parts[0]), int(parts[1]))
+            now = datetime.now()
+            current_time = now.time()
+            day_name = now.strftime("%A")  # Monday, Tuesday, etc.
 
-                return start <= now <= end
-        except Exception:
-            pass
-        return True  # Default to business hours if there's an error
+            # Find the business hours entry for today
+            for row in settings.business_hours:
+                if row.day == day_name:
+                    # Check if this day is enabled (open)
+                    if not row.enabled:
+                        return False  # Closed on this day
+
+                    # Check time range
+                    start = self._parse_time(row.start_time)
+                    end = self._parse_time(row.end_time)
+
+                    if start and end:
+                        return start <= current_time <= end
+                    return True  # Day is enabled but no specific times set
+
+            # No entry for this day - default to closed
+            return False
+
+        except Exception as e:
+            frappe.log_error(f"is_business_hours error: {str(e)}")
+        return True  # Default to open if there's an error
+
+    def _parse_time(self, time_value):
+        """Parse time value to time object."""
+        if not time_value:
+            return None
+
+        if isinstance(time_value, str):
+            from datetime import time
+            try:
+                parts = time_value.split(":")
+                return time(int(parts[0]), int(parts[1]), int(parts[2]) if len(parts) > 2 else 0)
+            except (ValueError, IndexError):
+                return None
+
+        # Already a time object
+        return time_value
 
 
 def process_incoming_message(doc, method=None):

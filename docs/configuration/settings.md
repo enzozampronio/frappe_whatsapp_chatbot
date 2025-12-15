@@ -25,19 +25,37 @@ Sorry, I didn't understand that. Please try again or type 'help' for assistance.
 
 ## Business Hours
 
-Restrict chatbot responses to specific hours.
+Restrict chatbot responses to specific hours for each day of the week.
 
 | Setting | Description |
 |---------|-------------|
 | **Respond Only During Business Hours** | Enable time-based filtering |
-| **Business Start Time** | Start of business hours (e.g., 09:00) |
-| **Business End Time** | End of business hours (e.g., 18:00) |
 | **Out of Hours Message** | Message sent outside business hours |
+| **Populate Default Hours** | Button to auto-fill Mon-Fri 9AM-6PM, weekends closed |
+| **Business Hours Schedule** | Table to configure hours for each day |
 
-Example out of hours message:
-```
-Thank you for your message. Our business hours are Monday-Friday, 9 AM - 6 PM. We'll respond during business hours.
-```
+### Business Hours Schedule Table
+
+| Column | Description |
+|--------|-------------|
+| **Day** | Day of the week (Monday-Sunday) |
+| **Open** | Check if business is open on this day |
+| **Start Time** | Opening time for this day |
+| **End Time** | Closing time for this day |
+
+### Example Configuration
+
+| Day | Open | Start | End |
+|-----|------|-------|-----|
+| Monday | ✓ | 09:00 | 18:00 |
+| Tuesday | ✓ | 09:00 | 18:00 |
+| Wednesday | ✓ | 09:00 | 18:00 |
+| Thursday | ✓ | 09:00 | 18:00 |
+| Friday | ✓ | 09:00 | 17:00 |
+| Saturday | ✓ | 10:00 | 14:00 |
+| Sunday | ✗ | - | - |
+
+**Tip:** Click "Populate Default Hours" to quickly set up a standard Mon-Fri 9AM-6PM schedule with weekends closed.
 
 ## Session Settings
 

@@ -12,9 +12,10 @@ Frappe WhatsApp Chatbot is an extension for [frappe_whatsapp](https://github.com
 - **Conversation Flows** - Build multi-step decision trees to collect information from users
 - **Dynamic Script Responses** - Execute Python scripts to generate responses from your database (e.g., check order status)
 - **Document Creation** - Automatically create Frappe documents (Leads, Issues, etc.) from collected data
-- **Optional AI Integration** - OpenAI and Anthropic support for intelligent fallback responses
+- **Optional AI Integration** - OpenAI, Anthropic, and Google AI support for intelligent fallback responses
 - **Session Management** - Track conversations with automatic timeout handling
-- **Business Hours** - Restrict bot responses to specified hours
+- **Business Hours** - Restrict bot responses to specified hours with day-of-week scheduling
+- **Agent Transfer** - Hand off conversations to human agents when needed
 
 ## Quick Example
 
